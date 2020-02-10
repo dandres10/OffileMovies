@@ -18,7 +18,7 @@ public abstract class NetworkBoundResource<ResultType, RequestType> {
     private final MediatorLiveData<Resource<ResultType>> result = new MediatorLiveData<>();
 
     @MainThread
-    NetworkBoundResource() {
+    public NetworkBoundResource() {
         result.setValue((Resource<ResultType>) Resource.loading(null));
         final LiveData<ResultType> dbSource = loadFromDb();
         result.addSource(dbSource, new Observer<ResultType>() {

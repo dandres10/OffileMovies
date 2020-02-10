@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,6 +16,8 @@ import android.view.ViewGroup;
 
 import com.example.offilemovies.R;
 import com.example.offilemovies.data.local.entity.MovieEntity;
+import com.example.offilemovies.data.network.Resource;
+import com.example.offilemovies.viewmodel.MovieViewModel;
 
 
 import java.util.List;
@@ -26,6 +30,7 @@ public class MovieFragment extends Fragment {
     private int mColumnCount = 1;
     List<MovieEntity> movieList;
     MyMovieRecyclerViewAdapter adapter;
+    MovieViewModel movieViewModel;
 
     public MovieFragment() {
     }
@@ -46,6 +51,8 @@ public class MovieFragment extends Fragment {
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
+
+        movieViewModel = ViewModelProviders.of(getActivity()).get(MovieViewModel.class);
     }
 
     @Override
@@ -63,14 +70,29 @@ public class MovieFragment extends Fragment {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
 
-            recyclerView.setAdapter(PasarDatosAdaptador());
+            adapter = new MyMovieRecyclerViewAdapter(
+                    getActivity(),
+                    movieList
+            );
+
+            recyclerView.setAdapter(adapter);
+
+            loadMovies();
+
         }
         return view;
     }
 
+    private void loadMovies() {
+        movieViewModel.getPopularMovies().observe(getActivity(), listResource -> {
+            movieList = listResource.data;
+            adapter.setData(movieList);
+        });
+    }
 
-    private MyMovieRecyclerViewAdapter PasarDatosAdaptador() {
+
+   /* private MyMovieRecyclerViewAdapter PasarDatosAdaptador() {
         adapter = new MyMovieRecyclerViewAdapter(getActivity(), movieList);
         return adapter;
-    }
+    }*/
 }

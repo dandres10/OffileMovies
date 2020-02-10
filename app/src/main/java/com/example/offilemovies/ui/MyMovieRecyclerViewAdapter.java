@@ -19,7 +19,7 @@ import java.util.List;
 
 public class MyMovieRecyclerViewAdapter extends RecyclerView.Adapter<MyMovieRecyclerViewAdapter.ViewHolder> {
 
-    private final List<MovieEntity> mValues;
+    private List<MovieEntity> mValues;
     Context ctx;
 
 
@@ -46,9 +46,17 @@ public class MyMovieRecyclerViewAdapter extends RecyclerView.Adapter<MyMovieRecy
 
     }
 
+    public void setData(List<MovieEntity> movies) {
+        this.mValues = movies;
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getItemCount() {
-        return mValues.size();
+        if (mValues != null)
+            return mValues.size();
+
+        else return 0;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

@@ -1,6 +1,6 @@
 package com.example.offilemovies.data.remote.model;
 
-import com.example.offilemovies.data.local.MovieEntity;
+import com.example.offilemovies.data.local.entity.MovieEntity;
 
 import java.util.List;
 

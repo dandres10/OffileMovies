@@ -11,7 +11,7 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.example.offilemovies.R;
-import com.example.offilemovies.data.local.MovieEntity;
+import com.example.offilemovies.data.local.entity.MovieEntity;
 import com.example.offilemovies.data.remote.ApiConstants;
 
 import java.util.List;

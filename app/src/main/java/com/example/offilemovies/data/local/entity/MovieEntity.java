@@ -1,5 +1,5 @@
 
-package com.example.offilemovies.data.local;
+package com.example.offilemovies.data.local.entity;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;

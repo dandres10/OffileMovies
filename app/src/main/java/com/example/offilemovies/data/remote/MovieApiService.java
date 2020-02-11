@@ -4,10 +4,11 @@ import com.example.offilemovies.data.remote.model.MoviesResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 
 public interface MovieApiService {
 
-    @GET("movie/popular")
+    @POST("movie/popular")
     Call<MoviesResponse>  loadPopularMovies();
 
 }

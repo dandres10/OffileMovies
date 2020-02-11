@@ -86,7 +86,8 @@ public class MovieFragment extends Fragment {
     private void loadMovies() {
         movieViewModel.getPopularMovies().observe(getActivity(), listResource -> {
             movieList = listResource.data;
-            adapter.setData(movieList);
+            if (movieList != null)
+                adapter.setData(movieList);
         });
     }
 

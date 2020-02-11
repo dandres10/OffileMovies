@@ -8,7 +8,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.Observer;
+
+
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -18,34 +19,21 @@ public abstract class NetworkBoundResource<ResultType, RequestType> {
     private final MediatorLiveData<Resource<ResultType>> result = new MediatorLiveData<>();
 
     @MainThread
-    NetworkBoundResource() {
-        result.setValue((Resource<ResultType>) Resource.loading(null));
-        final LiveData<ResultType> dbSource = loadFromDb();
-        result.addSource(dbSource, new Observer<ResultType>() {
-            @Override
-            public void onChanged(ResultType data) {
-                result.removeSource(dbSource);
-                if (NetworkBoundResource.this.shouldFetch(data)) {
-                    NetworkBoundResource.this.fetchFromNetwork(dbSource);
-                } else {
-                    result.addSource(dbSource, new Observer<ResultType>() {
-                        @Override
-                        public void onChanged(ResultType newData) {
-                            result.setValue(Resource.success(newData));
-                        }
-                    });
-                }
+    public NetworkBoundResource() {
+        result.setValue(Resource.loading(null));
+        LiveData<ResultType> dbSource = loadFromDb();
+        result.addSource(dbSource, data -> {
+            result.removeSource(dbSource);
+            if (shouldFetch(data)) {
+                fetchFromNetwork(dbSource);
+            } else {
+                result.addSource(dbSource, newData -> result.setValue(Resource.success(newData)));
             }
         });
     }
 
     private void fetchFromNetwork(final LiveData<ResultType> dbSource) {
-        result.addSource(dbSource, new Observer<ResultType>() {
-            @Override
-            public void onChanged(ResultType newData) {
-                result.setValue(Resource.loading(newData));
-            }
-        });
+        result.addSource(dbSource, newData -> result.setValue(Resource.loading(newData)));
         createCall().enqueue(new Callback<RequestType>() {
             @Override
             public void onResponse(Call<RequestType> call, Response<RequestType> response) {
@@ -54,21 +42,16 @@ public abstract class NetworkBoundResource<ResultType, RequestType> {
             }
 
             @Override
-            public void onFailure(Call<RequestType> call, final Throwable t) {
+            public void onFailure(Call<RequestType> call, Throwable t) {
                 onFetchFailed();
                 result.removeSource(dbSource);
-                result.addSource(dbSource, new Observer<ResultType>() {
-                    @Override
-                    public void onChanged(ResultType newData) {
-                        result.setValue(Resource.error(t.getMessage(), newData));
-                    }
-                });
+                result.addSource(dbSource, newData -> result.setValue(Resource.error(t.getMessage(), newData)));
             }
         });
     }
 
     @MainThread
-    private void saveResultAndReInit(final RequestType response) {
+    private void saveResultAndReInit(RequestType response) {
         new AsyncTask<Void, Void, Void>() {
 
             @Override
@@ -79,12 +62,7 @@ public abstract class NetworkBoundResource<ResultType, RequestType> {
 
             @Override
             protected void onPostExecute(Void aVoid) {
-                result.addSource(loadFromDb(), new Observer<ResultType>() {
-                    @Override
-                    public void onChanged(ResultType newData) {
-                        result.setValue(Resource.success(newData));
-                    }
-                });
+                result.addSource(loadFromDb(), newData -> result.setValue(Resource.success(newData)));
             }
         }.execute();
     }
